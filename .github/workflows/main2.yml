@@ -1,0 +1,38 @@
+name: Verify Folder Structure
+on: [pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check if Folder directory exists
+        run: |
+          if [ -d "./Folder" ]; then
+            echo "✓ Folder directory exists"
+          else
+            echo "✗ Folder directory not found"
+            exit 1
+          fi
+      
+      - name: Check if any .txt file exists in Folder directory
+        run: |
+          if [ -n "$(find ./Folder -maxdepth 1 -name '*.txt' -print -quit)" ]; then
+            echo "✓ Text file found in Folder directory"
+            find ./Folder -maxdepth 1 -name '*.txt' -exec echo "Found: {}" \;
+          else
+            echo "✗ No .txt file found in Folder directory"
+            exit 1
+          fi
+      
+      - name: Verify file content
+        run: |
+          txt_file=$(find ./Folder -maxdepth 1 -name '*.txt' -print -quit)
+          if [ -f "$txt_file" ]; then
+            if grep -q "Automation practice" "$txt_file"; then
+              echo "✓ File contains correct content: 'Automation practice'"
+            else
+              echo "✗ File content is incorrect. Expected: 'Automation practice'"
+              exit 1
+            fi
+          fi
